@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1"/>
+    <title>电商用户行为分析展示</title>
+    <link rel="stylesheet" href="/static/css/app.css"/>
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/me.js"></script>
+    <script type="text/javascript" src="/static/js/echarts-gl.js"></script>
+
+</head>
+<body>
+<div class="header">
+    <h1 class="header-title">电商用户行为分析</h1>
+</div>
+
+<div class="wrapper">
+    <div class="content">
+        <div class="col col-l">
+            <div class="xpanel-wrapper xpanel-wrapper-40">
+                <div class="xpanel xpanel-l-t">
+                    <div class="lefts" id="left1"></div>
+                </div>
+            </div>
+            <div class="xpanel-wrapper xpanel-wrapper-60">
+                <div class="xpanel xpanel-l-b">
+                    <div class="title">
+                        请输入要查看商品类别：<input type="text" id="inp"><input type="submit" value="查询" id="sub">
+                        <span id="out3" style="color: red;"></span><br/>
+                        商品销量：<span id="out1" style="color: red;"></span><br/>
+                        成交总额：<span id="out2" style="color: red;"></span><br/>
+                    </div>
+                    <div class="lefts" id="left2">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col col-c">
+            <div class="xpanel-wrapper xpanel-wrapper-75">
+                <div class="xpanel no-bg">
+                    <div id="container"></div>
+                </div>
+            </div>
+            <div class="xpanel-wrapper xpanel-wrapper-24">
+
+                <div class="xpanel xpanel-c-b">
+                    <div class="title title-long"><p>lzy</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col col-r">
+            <div class="xpanel-wrapper xpanel-wrapper-25">
+                <div class="xpanel xpanel-r-t">
+                    <div class="lefts" id="right1"></div>
+
+                </div>
+            </div>
+            <div class="xpanel-wrapper xpanel-wrapper-30">
+                <div class="xpanel xpanel-r-m">
+
+                    <div class="lefts" id="right2"></div>
+                </div>
+            </div>
+            <div class="xpanel-wrapper xpanel-wrapper-45">
+                <div class="xpanel xpanel-r-b">
+
+                    <div class="lefts" id="right3"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
+<script src="/static/js/three.js"></script>
+<script src="/static/js/china2.js"></script>
+<script src="/static/js/earth.js"></script>
+<script>
+
+    var echart = {
+        // 图1数据
+        id: [],
+        view: [],
+        cart: [],
+        purchase: [],
+        //题三数据
+        day: [],
+        uv: [],
+        pv: [],
+
+        //题四数据
+        day_1: [],
+        view_1: [],
+        cart_1: [],
+        removed_form_cart_1: [],
+        purchase_1: [],
+
+    };
+    function getData() {
+        echart = {
+        // 图1数据
+        id: [],
+        view: [],
+        cart: [],
+        purchase: [],
+        //题三数据
+        day: [],
+        uv: [],
+        pv: [],
+
+        //题四数据
+        day_1: [],
+        view_1: [],
+        cart_1: [],
+        removed_form_cart_1: [],
+        purchase_1: [],
+
+    };
+
+
+
+        //请求图一数据
+        $.ajax({
+            url: 'http://127.0.0.1:5001/table/1',
+            type: 'GET',
+            async: true,
+            dataType: 'json',
+            success: function (data) {
+                //console.log(data);
+                var item = data.data;
+                for (var i = 0; i < item.length; i++) {
+                    echart.id.push(item[i].id);
+                    echart.view.push(item[i].view);
+                    echart.cart.push(item[i].cart);
+                    echart.purchase.push(item[i].purchase);
+                }
+                drawChart1()
+            }
+        });
+        //console.log(id);
+
+        //请求图二数据
+        $.ajax({
+            url: 'http://127.0.0.1:5001/table/3',
+            type: 'GET',
+            async: true,
+            dataType: 'json',
+            success: function (data) {
+                //console.log(data);
+                var item = data.data;
+                for (var i = 0; i < item.length; i++) {
+                    echart.day.push(item[i].day);
+                    echart.uv.push(item[i].uv);
+                    echart.pv.push(item[i].pv);
+                }
+                drawChart2()
+
+            }
+        });
+        //console.log(day);
+
+
+        //请求图三数据
+        $.ajax({
+            url: 'http://127.0.0.1:5001/table/4',
+            type: 'GET',
+            async: true,
+            dataType: 'json',
+            success: function (data) {
+                //console.log(data);
+                var item = data.data;
+                for (var i = 0; i < item.length; i++) {
+                    echart.day_1.push(item[i].day);
+                    echart.view_1.push(item[i].view);
+                    echart.cart_1.push(item[i].cart);
+                    echart.removed_form_cart_1.push(item[i].removed_form_cart);
+                    echart.purchase_1.push(item[i].purchase);
+                }
+                drawChart3()
+
+            }
+        });
+        //console.log(day_1);
+
+        //console.log(id);
+        drawChart4()
+
+    }
+
+
+    //题二数据
+    //var inp = document.getElementById("sub");
+
+
+    $("#sub").click(function () {
+        //alert("input");
+        var category = $("#inp").val();
+
+        //alert(category);
+        $.ajax({
+            url: 'http://127.0.0.1:5001/table/2',
+            type: 'GET',
+            async: true,
+            dataType: 'json',
+            success: function (data) {
+                //console.log(data);
+                var item = data.data;
+                var faly = true;
+                for (var i = 0; i < item.length; i++) {
+                    //alert(category);
+                    //alert(item[i].category);
+                    if (item[i].category == category) {
+                        faly = false;
+                        //alert("suceess");
+                        var slaes_volume = item[i].slaes_volume;
+                        var totle_money = item[i].totle_money;
+
+                        $("#out1").html(slaes_volume);
+                        $("#out2").html(totle_money);
+                    }
+                }
+                if (faly) {
+                    //alert("defeat");
+                    $("#out3").html("查无此商！");
+                    $("#out1").html("");
+                    $("#out2").html("");
+                }
+            }
+        });
+    });
+
+
+    //左边第一个图
+    function drawChart1() {
+        var OptL1 = {
+            title: {
+                text: "table1",
+                subtext: "柱状图",
+                x: "center",
+                textStyle: {
+                    color: '#FFF5EE',
+                },
+            },
+            xAxis: {
+                type: "category",
+                data: echart.id,
+                axisLine: {
+                    lineStyle: {
+                        color: '#FFF5EE',
+                    }
+                }
+            },
+            yAxis: {
+                axisLine: {
+                    lineStyle: {
+                        color: '#FFF5EE',
+                    }
+                }
+            },
+            tooltip: {},
+            series: [{
+                name: "浏览",
+                type: "bar",
+                data: echart.view,
+            }, {
+                name: "加入购物车",
+                type: "bar",
+                data: echart.cart,
+            }, {
+                name: "购买量",
+                type: "bar",
+                data: echart.purchase,
+            }]
+        };
+        var left1 = echarts.init(document.getElementById("left1"));
+        left1.setOption(OptL1);
+    }
+
+
+    //右边第一个图
+    function drawChart2() {
+        var OptR1 = {
+            title: {
+                text: "table3",
+                textStyle: {
+                    color: '#FFF5EE',
+                },
+                subtext: "折线图",
+                x: "center",
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            xAxis: {
+                type: "category",
+                data: echart.day,
+                axisLine: {
+                    lineStyle: {
+                        color: '#FFF5EE',
+                    }
+                }
+            },
+            yAxis: {
+                type: "value",
+                axisLine: {
+                    lineStyle: {
+                        color: '#FFF5EE',
+                    }
+                }
+            },
+            series: [{
+                name: "访问用户总数量",
+                type: "line",
+                smooth: true,
+                data: echart.uv,
+            }, {
+                name: "页面总访问量",
+                type: "line",
+                smooth: true,
+                data: echart.pv,
+                lineStyle: {
+                    color: "#FFF5EE"
+                }
+            },]
+        };
+        var right1 = echarts.init(document.getElementById("right1"));
+        right1.setOption(OptR1);
+    }
+
+
+    //右边第二个图
+    function drawChart3() {
+        var OptR2 = {
+            title: {
+                text: "table4",
+                textStyle: {
+                    color: '#FFF5EE',
+                },
+                subtext: "折线图",
+                x: "center",
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            xAxis: {
+                type: "category",
+                data: echart.day_1,
+                axisLine: {
+                    lineStyle: {
+                        color: '#FFF5EE',
+                    }
+                }
+            },
+            yAxis: {
+                type: "value",
+                axisLine: {
+                    lineStyle: {
+                        color: '#FFF5EE',
+                    }
+                }
+            },
+            series: [{
+                name: "浏览次数",
+                type: "line",
+                smooth: true,
+                data: echart.view_1,
+            }, {
+                name: "加入购物车次数",
+                type: "line",
+                smooth: true,
+                data: echart.cart_1,
+            }, {
+                name: "用户将产品从购物车中移除总量",
+                type: "line",
+                smooth: true,
+                data: echart.removed_form_cart_1,
+            }, {
+                name: "购买总量",
+                type: "line",
+                smooth: true,
+                data: echart.purchase_1,
+            },]
+        };
+        var right2 = echarts.init(document.getElementById("right2"));
+        right2.setOption(OptR2);
+    }
+
+
+    // var OptR3 = {
+    //     title: {
+    //         text: "table2",
+    //         subtext: "饼图",
+    //         x: "center",
+    //         textStyle: {
+    //             color: '#FFF5EE',
+    //         },
+    //     },
+    //     tooltip: {
+    //         trigger: 'item',
+    //         formatter: '{a}<br/>{b}:{c}({d}%)'
+    //     },
+    //     series: [{
+    //         name: "销量",
+    //         type: "pie",
+    //         radius: [0, '35%'],
+    //         labelLine: {
+    //             show: false
+    //         },
+    //         label: {
+    //             position: 'inner'
+    //         },
+    //         data: [
+    //             {name: category[1], value: slaes_volume[1]},
+    //             {name: category[0], value: slaes_volume[0], selected: true},
+    //             {name: category[2], value: slaes_volume[2]},
+    //             {name: category[3], value: slaes_volume[3]}]
+    //     }, {
+    //         name: "总额",
+    //         type: "pie",
+    //         radius: ['50%', '65%'],
+    //         data: [{name: category[0], value: totle_money[0]}, {
+    //             name: category[1],
+    //             value: totle_money[1]
+    //         }, {name: category[2], value: totle_money[2]}, {name: category[3], value: totle_money[3]}]
+    //     }]
+    // };
+
+    //右边第三个图
+    function drawChart4() {
+        OptR3 = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c} ({d}%)'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 10,
+                data: ['直达', '营销广告', '搜索引擎', '邮件营销', '联盟广告', '视频广告', '百度', '谷歌', '必应', '其他']
+            },
+            series: [
+                {
+                    name: '访问来源',
+                    type: 'pie',
+                    selectedMode: 'single',
+                    radius: [0, '30%'],
+
+                    label: {
+                        position: 'inner'
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: [
+                        {value: 335, name: '直达', selected: true},
+                        {value: 679, name: '营销广告'},
+                        {value: 1548, name: '搜索引擎'}
+                    ]
+                },
+                {
+                    name: '访问来源',
+                    type: 'pie',
+                    radius: ['40%', '55%'],
+                    label: {
+                        formatter: '{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ',
+                        backgroundColor: '#eee',
+                        borderColor: '#aaa',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        // shadowBlur:3,
+                        // shadowOffsetX: 2,
+                        // shadowOffsetY: 2,
+                        // shadowColor: '#999',
+                        // padding: [0, 7],
+                        rich: {
+                            a: {
+                                color: '#999',
+                                lineHeight: 22,
+                                align: 'center'
+                            },
+                            // abg: {
+                            //     backgroundColor: '#333',
+                            //     width: '100%',
+                            //     align: 'right',
+                            //     height: 22,
+                            //     borderRadius: [4, 4, 0, 0]
+                            // },
+                            hr: {
+                                borderColor: '#aaa',
+                                width: '100%',
+                                borderWidth: 0.5,
+                                height: 0
+                            },
+                            b: {
+                                fontSize: 16,
+                                lineHeight: 33
+                            },
+                            per: {
+                                color: '#eee',
+                                backgroundColor: '#334455',
+                                padding: [2, 4],
+                                borderRadius: 2
+                            }
+                        }
+                    },
+                    data: [
+                        {value: 335, name: '直达'},
+                        {value: 310, name: '邮件营销'},
+                        {value: 234, name: '联盟广告'},
+                        {value: 135, name: '视频广告'},
+                        {value: 1048, name: '百度'},
+                        {value: 251, name: '谷歌'},
+                        {value: 147, name: '必应'},
+                        {value: 102, name: '其他'}
+                    ]
+                }
+            ]
+        };
+        var right3 = echarts.init(document.getElementById("right3"));
+        right3.setOption(OptR3);
+    }
+
+    window.setInterval(function () {
+        getData()
+    }, 3000)
+
+
+</script>
+</html>
